@@ -12,7 +12,22 @@ export class Gallery {
   description: string;
 
   @Prop()
+  originalName: string;
+
+  @Prop()
+  mimeType: string;
+
+  @Prop()
+  fileName: string;
+
+  @Prop()
+  size: number;
+
+  @Prop()
   filePath: string;
+
+  @Prop({ default: Date.now })
+  createdAt: Date;
 }
 
 export const GallerySchema = SchemaFactory.createForClass(Gallery);

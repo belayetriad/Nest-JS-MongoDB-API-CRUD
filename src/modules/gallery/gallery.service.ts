@@ -26,6 +26,10 @@ export class GalleryService {
     file,
   ): Promise<Gallery> {
     const gallery = new this.galleryModel(createGalleryDto);
+    gallery.originalName = file.originalname;
+    gallery.mimeType = file.mimetype;
+    gallery.fileName = file.filename;
+    gallery.size = file.size;
     gallery.filePath = file.path;
     return gallery.save();
   }

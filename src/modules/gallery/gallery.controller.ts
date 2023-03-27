@@ -27,7 +27,7 @@ export class GalleryController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: './uploads/',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -38,10 +38,18 @@ export class GalleryController {
       }),
     }),
   )
+  // async addWatermark(@UploadedFile() file) {
+  //   const image = await Jimp.read(file.path);
+  //   const font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
+  //   // const watermark = await Jimp.read('path/to/watermark');
+  //   image.print(font, 10, 10, 'Watermark Text'); // Place the text at coordinates (10, 10)
+  //   await image.writeAsync(`./uploads/wm-${file.path}`);
+  // }
   async createGallery(
     @UploadedFile() file,
     @Body() createGalleryDto: CreateGalleryDto,
   ) {
+    console.log(file);
     return this.galleryService.createGallery(createGalleryDto, file);
   }
 
