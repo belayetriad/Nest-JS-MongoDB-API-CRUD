@@ -10,6 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import * as Jimp from 'jimp';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { CreateGalleryDto } from 'src/dto/gallery.dto';
@@ -38,18 +39,24 @@ export class GalleryController {
       }),
     }),
   )
-  // async addWatermark(@UploadedFile() file) {
-  //   const image = await Jimp.read(file.path);
-  //   const font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
-  //   // const watermark = await Jimp.read('path/to/watermark');
-  //   image.print(font, 10, 10, 'Watermark Text'); // Place the text at coordinates (10, 10)
-  //   await image.writeAsync(`./uploads/wm-${file.path}`);
-  // }
   async createGallery(
     @UploadedFile() file,
     @Body() createGalleryDto: CreateGalleryDto,
   ) {
-    console.log(file);
+    Jimp.read('uploads/1b3abfffe7c51c06834c948378862f71.png')
+      .then((image) => {
+        Jimp.loadFont(Jimp.FONT_SANS_32_WHITE).then((font) => {
+          console.log(image);
+          const text = 'Sample Watermark';
+          image.print(font, 10, 10, text);
+          image.writeAsync(`uploads/me1.jpg`);
+        });
+      })
+      .catch((err) => {
+        // Handle an exception.
+      });
+    // // const watermark = await Jimp.read('path/to/watermark');
+
     return this.galleryService.createGallery(createGalleryDto, file);
   }
 

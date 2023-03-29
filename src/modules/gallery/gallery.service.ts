@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { unlinkSync } from 'fs';
+import * as Jimp from 'jimp';
 import { Model } from 'mongoose';
 import { CreateGalleryDto } from 'src/dto/gallery.dto';
 import { Gallery } from 'src/schemas/gallery.schema';
@@ -76,5 +77,12 @@ export class GalleryService {
         fileUrl: `${appUrl}/${gallery.filePath}`,
       };
     });
+  }
+
+  async resizeImage(path: string): Promise<Buffer> {
+    const image = await Jimp.read(path);
+    const resizedImage = await image.resize(800, 600);
+    const buffer = await resizedImage.getBufferAsync(Jimp.MIME_JPEG);
+    return buffer;
   }
 }
