@@ -28,7 +28,7 @@ export class GalleryController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads/',
+        destination: './uploads/original',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -43,13 +43,15 @@ export class GalleryController {
     @UploadedFile() file,
     @Body() createGalleryDto: CreateGalleryDto,
   ) {
-    Jimp.read('uploads/1b3abfffe7c51c06834c948378862f71.png')
+    console.log(file);
+    const fileName = `uploads/${file?.filename}`;
+    file.filePath = fileName;
+    Jimp.read(file?.path)
       .then((image) => {
         Jimp.loadFont(Jimp.FONT_SANS_32_WHITE).then((font) => {
-          console.log(image);
           const text = 'Sample Watermark';
           image.print(font, 10, 10, text);
-          image.writeAsync(`uploads/me1.jpg`);
+          image.writeAsync(fileName);
         });
       })
       .catch((err) => {

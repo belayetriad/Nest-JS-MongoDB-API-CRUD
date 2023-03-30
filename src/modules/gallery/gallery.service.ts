@@ -31,7 +31,8 @@ export class GalleryService {
     gallery.mimeType = file.mimetype;
     gallery.fileName = file.filename;
     gallery.size = file.size;
-    gallery.filePath = file.path;
+    gallery.filePath = file.filePath;
+    gallery.originalFilePath = file.path;
     return gallery.save();
   }
 

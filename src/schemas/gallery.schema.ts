@@ -26,6 +26,9 @@ export class Gallery {
   @Prop()
   filePath: string;
 
+  @Prop()
+  originalFilePath: string;
+
   @Prop({ default: Date.now })
   createdAt: Date;
 }
