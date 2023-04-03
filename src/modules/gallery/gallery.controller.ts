@@ -57,31 +57,51 @@ export class GalleryController {
     @Body() createGalleryDto: CreateGalleryDto,
   ) {
     const fileName = `uploads/${file?.filename}`;
-    let watermark = await Jimp.read(
-      `src/assets/watermark/${this.configService.get<string>(
-        'waterMarkImageName',
-      )}`,
-    );
-    watermark = watermark.resize(300, 300);
-    file.filePath = fileName;
-    Jimp.read(file?.path)
-      .then((image) => {
-        // Jimp.loadFont(Jimp.FONT_SANS_32_WHITE).then((font) => {
-        //   const text = 'Sample Watermark';
-        //   image.print(font, 100, 100, text);
-        //   image.writeAsync(fileName);
-        // });
 
-        image.composite(watermark, 100, 100, {
-          mode: Jimp.BLEND_SOURCE_OVER,
-          opacityDest: 1,
-          opacitySource: 0.5,
-        });
-        image.writeAsync(fileName);
-      })
-      .catch((err) => {
-        // Handle an exception.
-      });
+    file.filePath = fileName;
+    Jimp.read(file?.path, (err, image) => {
+      if (err) throw err;
+      if (err) throw err;
+      Jimp.read(
+        `src/assets/watermark/${this.configService.get<string>(
+          'waterMarkImageName',
+        )}`,
+        (err, watermark) => {
+          if (err) throw err;
+          watermark = watermark.resize(300, 300);
+          // Get the dimensions of the base image and the overlay image
+          const baseWidth = image.bitmap.width;
+          const baseHeight = image.bitmap.height;
+          const overlayWidth = watermark.bitmap.width;
+          const overlayHeight = watermark.bitmap.height;
+
+          // Calculate the x and y positions of the overlay image
+          const x = baseWidth - overlayWidth;
+          const y = baseHeight - overlayHeight;
+
+          // Composite the overlay image onto the base image
+          image.composite(
+            watermark,
+            x,
+            y,
+            {
+              mode: Jimp.BLEND_SOURCE_OVER,
+              opacityDest: 1,
+              opacitySource: 0.5,
+            },
+            (err, image) => {
+              if (err) throw err;
+
+              // Save the composited image to a file
+              image.write(fileName, (err) => {
+                if (err) throw err;
+                console.log('Image composited successfully!');
+              });
+            },
+          );
+        },
+      );
+    });
 
     return this.galleryService.createGallery(createGalleryDto, file);
   }
