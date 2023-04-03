@@ -9,6 +9,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as Jimp from 'jimp';
 import { diskStorage } from 'multer';
@@ -17,7 +18,19 @@ import { CreateGalleryDto } from 'src/dto/gallery.dto';
 import { GalleryService } from './gallery.service';
 @Controller('gallery')
 export class GalleryController {
-  constructor(private readonly galleryService: GalleryService) {}
+  constructor(
+    private readonly galleryService: GalleryService,
+    private readonly configService: ConfigService,
+  ) {
+    async function resize(img, heigth = 150, width = 150) {
+      // Read the image.
+      const image = await Jimp.read(img);
+      // Resize the image to width 150 and heigth 150.
+      await image.resize(heigth, width);
+      // Save and overwrite the image
+      await image.writeAsync(`test/${Date.now()}_150x150.png`);
+    }
+  }
 
   @Get()
   async getGalleries(): Promise<any> {
@@ -28,7 +41,7 @@ export class GalleryController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads/',
+        destination: './uploads/original',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -43,19 +56,32 @@ export class GalleryController {
     @UploadedFile() file,
     @Body() createGalleryDto: CreateGalleryDto,
   ) {
-    Jimp.read('uploads/1b3abfffe7c51c06834c948378862f71.png')
+    const fileName = `uploads/${file?.filename}`;
+    let watermark = await Jimp.read(
+      `src/assets/watermark/${this.configService.get<string>(
+        'waterMarkImageName',
+      )}`,
+    );
+    watermark = watermark.resize(300, 300);
+    file.filePath = fileName;
+    Jimp.read(file?.path)
       .then((image) => {
-        Jimp.loadFont(Jimp.FONT_SANS_32_WHITE).then((font) => {
-          console.log(image);
-          const text = 'Sample Watermark';
-          image.print(font, 10, 10, text);
-          image.writeAsync(`uploads/me1.jpg`);
+        // Jimp.loadFont(Jimp.FONT_SANS_32_WHITE).then((font) => {
+        //   const text = 'Sample Watermark';
+        //   image.print(font, 100, 100, text);
+        //   image.writeAsync(fileName);
+        // });
+
+        image.composite(watermark, 100, 100, {
+          mode: Jimp.BLEND_SOURCE_OVER,
+          opacityDest: 1,
+          opacitySource: 0.5,
         });
+        image.writeAsync(fileName);
       })
       .catch((err) => {
         // Handle an exception.
       });
-    // // const watermark = await Jimp.read('path/to/watermark');
 
     return this.galleryService.createGallery(createGalleryDto, file);
   }
