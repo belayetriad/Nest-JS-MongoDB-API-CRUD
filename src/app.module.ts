@@ -15,6 +15,7 @@ import { GalleryModule } from './modules/gallery/gallery.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { UserModule } from './modules/user/user.module';
 import { BcryptService } from './services/bcrypt.service';
+import { ImageService } from './services/image.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,6 +38,6 @@ import { BcryptService } from './services/bcrypt.service';
     GalleryModule,
   ],
   controllers: [AppController],
-  providers: [AppService, BcryptService, JwtService],
+  providers: [AppService, BcryptService, JwtService, ImageService],
 })
 export class AppModule {}

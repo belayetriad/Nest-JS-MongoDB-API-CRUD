@@ -18,10 +18,6 @@ export class GalleryService {
     return this.addFileUrls(galleries);
   }
 
-  async findOneGallery(id: string): Promise<Gallery> {
-    return this.galleryModel.findById(id).exec();
-  }
-
   async createGallery(
     createGalleryDto: CreateGalleryDto,
     file,
@@ -34,6 +30,10 @@ export class GalleryService {
     gallery.filePath = file.filePath;
     gallery.originalFilePath = file.path;
     return gallery.save();
+  }
+
+  async findOneGallery(id: string): Promise<Gallery> {
+    return this.galleryModel.findById(id).exec();
   }
 
   async updateGallery(

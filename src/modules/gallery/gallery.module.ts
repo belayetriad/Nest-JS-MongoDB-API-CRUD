@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { GallerySchema } from 'src/schemas/gallery.schema';
+import { ImageService } from 'src/services/image.service';
 import { GalleryController } from './gallery.controller';
 import { GalleryService } from './gallery.service';
 
@@ -14,6 +15,6 @@ import { GalleryService } from './gallery.service';
     }),
   ],
   controllers: [GalleryController],
-  providers: [GalleryService],
+  providers: [GalleryService, ImageService],
 })
 export class GalleryModule {}
