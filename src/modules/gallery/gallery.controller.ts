@@ -15,11 +15,13 @@ import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import * as Jimp from 'jimp';
+import * as mkdirp from 'mkdirp';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { CreateGalleryDto } from 'src/dto/gallery.dto';
 import { ImageService } from 'src/services/image.service';
 import { GalleryService } from './gallery.service';
+
 @Controller('gallery')
 export class GalleryController {
   constructor(
@@ -37,7 +39,15 @@ export class GalleryController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './src/uploads',
+        destination: async (req, file, cb) => {
+          const now = new Date();
+          const year = now.getFullYear().toString();
+          const month = (now.getMonth() + 1).toString().padStart(2, '0');
+          const day = now.getDate().toString().padStart(2, '0');
+          const directory = `./src/uploads/${year}/${month}/${day}`;
+          await mkdirp(directory);
+          cb(null, directory);
+        },
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -52,9 +62,9 @@ export class GalleryController {
     @UploadedFile() file,
     @Body() createGalleryDto: CreateGalleryDto,
   ) {
-    const fileName = `src/uploads/${file?.filename}`;
+    console.log(file);
 
-    file.filePath = fileName;
+    file.filePath = `${file?.destination}/${file?.filename}`;
 
     return this.galleryService.createGallery(createGalleryDto, file);
   }
