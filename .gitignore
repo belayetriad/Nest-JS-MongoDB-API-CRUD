@@ -4,6 +4,7 @@
 
 # Upload Folder
 /uploads
+/src/uploads
 
 # Logs
 logs
